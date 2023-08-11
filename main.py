@@ -9,6 +9,7 @@ import pandas as pd
 import time
 import pika
 import sys
+import time
 
 f = open('settings.json')
 credentials = json.load(f)
@@ -163,13 +164,13 @@ class CumulocityFetcher:
 
         final_df = pd.DataFrame(columns=['time', 'source', 'device_name', 'fragment.series', 'value', 'unit'])
         for i in range(nr):
-            temp_file = pd.read_csv(f'../ThesisVersion2/SavedDatasets/{filename}-{i}.csv')
+            temp_file = pd.read_csv(f'../thesis-toolset-backend/SavedDatasets/{filename}-{i}.csv')
             final_df = final_df.append(temp_file, ignore_index=True)
 
-        final_df.to_csv(f'../ThesisVersion2/SavedDatasets/{filename}.csv', index=False)
+        final_df.to_csv(f'../thesis-toolset-backend/SavedDatasets/{filename}.csv', index=False)
 
         for i in range(nr):
-            os.remove(f'../ThesisVersion2/SavedDatasets/{filename}-{i}.csv')
+            os.remove(f'../thesis-toolset-backend/SavedDatasets/{filename}-{i}.csv')
 
     def get_all_measurements_ranged(self, date_from, date_to):
         measurements = []
@@ -232,17 +233,19 @@ def save_as_csv(filename, date_from, date_to, mt=None):
 
 
 def save_to_json_file(data, filename):
-    path = "../ThesisVersion2/SavedDatasets"
+    path = "../thesis-toolset-backend/SavedDatasets"
 
     if not os.path.exists(path):
         os.makedirs(path)
 
-    pd.DataFrame(data).to_json(f"../ThesisVersion2/SavedDatasets/{filename}.json", orient='split')
+    pd.DataFrame(data).to_json(f"../thesis-toolset-backend/SavedDatasets/{filename}.json", orient='split')
     print(f"Saved result as {filename}.json")
 
 
 def save_to_csv_file(binary, filename):
-    with open(f"../ThesisVersion2/SavedDatasets/{filename}.csv", 'wb')as file:
+    if not os.path.exists("../thesis-toolset-backend/SavedDatasets/"):
+        os.makedirs("../thesis-toolset-backend/SavedDatasets/")
+    with open(f"../thesis-toolset-backend/SavedDatasets/{filename}.csv", 'wb')as file:
         file.write(binary)
 
 
@@ -264,11 +267,16 @@ if __name__ == '__main__':
             print("Job started.")
             received_obj = json.loads(body.decode())
             print(received_obj)
+
+            start = time.time()
             if 'mt' in received_obj:
                 save_as_csv(received_obj['filename'], received_obj['dateFrom'], received_obj['dateTo'],
                             received_obj['mt'])
             else:
                 save_as_csv(received_obj['filename'], received_obj['dateFrom'], received_obj['dateTo'])
+            end = time.time()
+
+            print(f"{end - start} s")
             print("Job completed.")
 
 
