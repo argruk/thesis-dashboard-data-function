@@ -1,5 +1,12 @@
 # thesis-dashboard-data-function
 
+To have an application working, you also need to install two other projects:
+1. [Server](https://github.com/argruk/thesis-toolset-backend)
+2. [Frontend](https://github.com/argruk/dashboard-frontend)
+
+This project also requires a `settings.json` file present in the root folder of this project.  
+![credentialsExample](https://github.com/argruk/thesis-toolset-backend/assets/36072338/52603aab-7b37-4a51-bf63-99ceed3795dd)
+
 A project for extracting data from Cumulocity.
 Requires RabbitMQ running on port 5672.
 
